@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { PrismaClient } from '@prisma/client'
 import authRouter from './routes/auth'
+import diaryRouter from './routes/diary'
 
 const prisma = new PrismaClient()
 const app = express()
@@ -22,6 +23,7 @@ app.get('/health', async (req, res) => {
 })
 
 app.use('/api/auth', authRouter)
+app.use('/api/diary', diaryRouter)
 
 app.get('/api/ping', (req, res) => {
   res.json({ pong: true })
