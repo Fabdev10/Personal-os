@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id @default(cuid())
+  email      String    @unique
+  username   String?   @unique
+  password   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  diary      DiaryEntry[]
+  goals      Goal[]
+  workouts   Workout[]
+  studies    StudySession[]
+  habits     Habit[]
+}
+
+model DiaryEntry {
+  id         String    @id @default(cuid())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+  title      String
+  content    String
+  date       DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  mood       Mood
+  energy     Int
+  tags       Tag[]     @relation("DiaryTags", references: [id])
+  goals      Goal[]    @relation("DiaryGoals")
+  workouts   Workout[] @relation("DiaryWorkouts")
+  studySessions StudySession[] @relation("DiaryStudy")
+  @@index([userId, date])
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String
+  color String?
+  diary DiaryEntry[] @relation("DiaryTags")
+  @@unique([name])
+}
+
+enum Mood {
+  EXCELLENT
+  GOOD
+  NEUTRAL
+  BAD
+  TERRIBLE
+}
+
+model Goal {
+  id            String    @id @default(cuid())
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String
+  title         String
+  description   String?
+  category      GoalCategory
+  priority      Int
+  status        GoalStatus
+  progress      Float     @default(0)
+  startDate     DateTime?
+  deadline      DateTime?
+  milestones    GoalMilestone[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model GoalMilestone {
+  id        String   @id @default(cuid())
+  goal      Goal     @relation(fields: [goalId], references: [id])
+  goalId    String
+  title     String
+  done      Boolean  @default(false)
+  dueDate   DateTime?
+}
+
+enum GoalCategory { PERSONAL CAREER FITNESS STUDY FINANCE PROJECTS OTHER }
+enum GoalStatus   { NOT_STARTED IN_PROGRESS COMPLETED PAUSED CANCELLED }
+
+model Workout {
+  id         String  @id @default(cuid())
+  user       User    @relation(fields: [userId], references: [id])
+  userId     String
+  date       DateTime
+  duration   Int?    // minutes
+  type       String?
+  notes      String?
+  exercises  Exercise[]
+  diaryLinks DiaryEntry[] @relation("DiaryWorkouts")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Exercise {
+  id         String @id @default(cuid())
+  workout    Workout @relation(fields: [workoutId], references: [id])
+  workoutId  String
+  name       String
+  sets       WorkoutSet[]
+  notes      String?
+}
+
+model WorkoutSet {
+  id         String @id @default(cuid())
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  exerciseId String
+  reps       Int
+  weight     Float?
+  rpe        Int?
+  setOrder   Int
+}
+
+model StudySession {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  date       DateTime
+  duration   Int      // minutes
+  subject    String
+  topic      String?
+  notes      String?
+  difficulty Int?
+  diaryLinks DiaryEntry[] @relation("DiaryStudy")
+  createdAt  DateTime @default(now())
+}
+
+model Certification {
+  id         String  @id @default(cuid())
+  user       User    @relation(fields: [userId], references: [id])
+  userId     String
+  name       String
+  provider   String?
+  targetDate DateTime?
+  status     String
+  progress   Float   @default(0)
+  topics     String[]
+  resources  String?
+  createdAt  DateTime @default(now())
+}
+
+model Habit {
+  id         String  @id @default(cuid())
+  user       User    @relation(fields: [userId], references: [id])
+  userId     String
+  name       String
+  frequency  String
+  color      String?
+  startDate  DateTime?
+  completions HabitCompletion[]
+}
+
+model HabitCompletion {
+  id        String   @id @default(cuid())
+  habit     Habit    @relation(fields: [habitId], references: [id])
+  habitId   String
+  date      DateTime
+  done      Boolean  @default(true)
+}
+
+model CalendarEvent {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  title      String
+  start      DateTime
+  end        DateTime?
+  allDay     Boolean  @default(false)
+  type       String?  // diary/workout/study/goal
+  refId      String?  // linked entity id
+  color      String?
+  notes      String?
+}
