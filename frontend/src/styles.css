@@ -3,3 +3,10 @@
 @tailwind utilities;
 
 html, body, #root { height: 100%; }
+
+@import url('@fontsource/inter/400.css');
+@import url('@fontsource/inter/600.css');
+
+.font-inter { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial }
+
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden }

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import './styles.css'
 import Diary from './pages/Diary'
+import Layout from './components/Layout'
 
 function App(){
   return (
@@ -17,7 +18,7 @@ function App(){
         </header>
         <Routes>
           <Route path="/" element={<div>Dashboard (work in progress)</div>} />
-          <Route path="/diary" element={<Diary />} />
+          <Route path="/diary" element={<Layout><Diary /></Layout>} />
         </Routes>
       </div>
     </div>
