@@ -1,26 +1,52 @@
 import React from 'react'
-import { MagnifyingGlassIcon, MoonIcon, SunIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon, BellIcon, ArrowRightOnRectangleIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline/index.js'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
-export default function Header(){
-  const [dark, setDark] = React.useState(false)
-  React.useEffect(()=>{
-    if(dark) document.documentElement.classList.add('dark')
-    else document.documentElement.classList.remove('dark')
-  },[dark])
+export default function Header() {
+  const { user, logout } = useAuth()
+  const { resolvedTheme, toggleTheme } = useTheme()
+  const navigate = useNavigate()
+
+  async function handleLogout() {
+    await logout()
+    navigate('/login')
+  }
+
+  const initials = (user?.username || user?.email || '?')[0].toUpperCase()
 
   return (
-    <header className="flex items-center justify-between p-4 border-b dark:border-gray-700 bg-transparent">
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input placeholder="Search (Ctrl+K)" className="pl-10 pr-3 py-2 rounded border bg-white dark:bg-gray-800" />
-        </div>
+    <header className="topbar">
+      {/* Search */}
+      <div className="search-bar">
+        <MagnifyingGlassIcon className="search-bar-icon" />
+        <input placeholder="Search entries… (Ctrl+K)" id="global-search" />
       </div>
-      <div className="flex items-center gap-3">
-        <button onClick={()=>setDark(!dark)} className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-          {dark ? <SunIcon className="w-5 h-5"/> : <MoonIcon className="w-5 h-5"/>}
+
+      {/* Actions */}
+      <div className="topbar-actions">
+        <button
+          className="icon-btn"
+          title={resolvedTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          id="btn-theme-toggle"
+          onClick={toggleTheme}
+        >
+          {resolvedTheme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
-        <div className="px-3 py-1 border rounded">you@example.com</div>
+
+        <button className="icon-btn" title="Notifications" id="btn-notifications">
+          <BellIcon />
+        </button>
+
+        <div className="avatar-chip" id="user-menu">
+          <div className="avatar-chip-dot">{initials}</div>
+          <span>{user?.username || user?.email?.split('@')[0] || 'user'}</span>
+        </div>
+
+        <button className="icon-btn" title="Logout" id="btn-logout" onClick={handleLogout} style={{ color: 'var(--danger)' }}>
+          <ArrowRightOnRectangleIcon />
+        </button>
       </div>
     </header>
   )

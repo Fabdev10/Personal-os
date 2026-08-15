@@ -23,9 +23,7 @@ services:
       - "4000:4000"
     depends_on:
       - db
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+
 
   frontend:
     build:
@@ -37,9 +35,11 @@ services:
       - "5173:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - frontend-node-modules:/app/node_modules
     depends_on:
       - backend
 
 volumes:
   db-data:
+  backend-node-modules:
+  frontend-node-modules:

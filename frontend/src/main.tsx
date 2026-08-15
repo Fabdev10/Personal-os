@@ -1,32 +1,61 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './styles.css'
-import Diary from './pages/Diary'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import Layout from './components/Layout'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Dashboard from './pages/Dashboard'
+import Diary from './pages/Diary'
+import Goals from './pages/Goals'
+import Workouts from './pages/Workouts'
+import Study from './pages/Study'
+import Habits from './pages/Habits'
+import Agenda from './pages/Agenda'
 
-function App(){
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <div className="max-w-6xl mx-auto p-6">
-        <header className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold">Personal OS</h1>
-          <nav className="space-x-4">
-            <Link to="/">Dashboard</Link>
-            <Link to="/diary">Diary</Link>
-          </nav>
-        </header>
-        <Routes>
-          <Route path="/" element={<div>Dashboard (work in progress)</div>} />
-          <Route path="/diary" element={<Layout><Diary /></Layout>} />
-        </Routes>
-      </div>
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth()
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg-base)', color: 'var(--text-muted)', fontSize: 14 }}>
+      Loading…
     </div>
+  )
+  if (!user) return <Navigate to="/login" replace />
+  return <>{children}</>
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/*" element={
+        <RequireAuth>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/agenda" element={<Agenda />} />
+              <Route path="/diary" element={<Diary />} />
+              <Route path="/goals" element={<Goals />} />
+              <Route path="/workouts" element={<Workouts />} />
+              <Route path="/study" element={<Study />} />
+              <Route path="/habits" element={<Habits />} />
+            </Routes>
+          </Layout>
+        </RequireAuth>
+      } />
+    </Routes>
   )
 }
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <App />
+    <ThemeProvider>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </ThemeProvider>
   </BrowserRouter>
 )
